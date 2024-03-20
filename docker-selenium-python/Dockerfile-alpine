@@ -1,0 +1,34 @@
+ARG ARCH
+FROM ${ARCH}alpine:3
+
+LABEL org.label-schema.maintainer="paul.schmidt@infologistix.de"
+LABEL org.label-schema.build-date="05.11.2022"
+LABEL org.label-schema.schema-version="1.0"
+LABEL org.label-schema.version="python3.10"
+
+RUN apk add \
+    chromium \
+    python3 \
+    py3-pip \
+    py3-numpy \
+    py3-pandas \
+    py3-cryptography \
+    py3-multidict \
+    py3-yarl \
+    py3-beautifulsoup4 \
+    chromium-chromedriver \
+    && rm -rf /var/cache/* \
+    && mkdir /var/cache/apk
+
+WORKDIR /usr/src/app
+
+# Crear y activar un entorno virtual
+RUN python3 -m venv venv
+ENV PATH="/usr/src/app/venv/bin:$PATH"
+
+# Ahora que el entorno virtual está activo, podemos usar pip para instalar requisitos
+COPY requirements.txt ./
+RUN pip install --no-cache-dir -r requirements.txt
+RUN rm requirements.txt
+
+COPY examples/ ./examples
